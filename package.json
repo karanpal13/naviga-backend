@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "openai": "^4.47.0"
+    "openai": "^4.47.0",
+    "uuid": "^9.0.1"
   }
 }
