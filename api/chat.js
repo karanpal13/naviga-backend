@@ -5,6 +5,16 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req, res) {
+  // ✅ CORS Headers
+  res.setHeader("Access-Control-Allow-Origin", "https://digitalrecruiter.com");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Handle preflight
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -17,9 +27,9 @@ export default async function handler(req, res) {
       input: message,
     });
 
-    const reply = response.output[0].content[0].text;
-
-    res.status(200).json({ reply });
+    res.status(200).json({
+      reply: response.output_text,
+    });
 
   } catch (error) {
     console.error(error);
