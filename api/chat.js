@@ -5,8 +5,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Temporary in-memory store (MVP)
-const conversations = {};
+const sessions = {};
 
 export default async function handler(req, res) {
 
@@ -24,46 +23,56 @@ export default async function handler(req, res) {
 
   try {
 
-    let { message, sessionId } = req.body;
+    const { message, sessionId } = req.body;
 
-    // Create new session if none exists
-    if (!sessionId) {
-      sessionId = uuidv4();
-      conversations[sessionId] = [];
+    let currentSessionId = sessionId;
+
+    if (!currentSessionId) {
+      currentSessionId = uuidv4();
+      sessions[currentSessionId] = [];
     }
 
-    // Initialize session store if missing
-    if (!conversations[sessionId]) {
-      conversations[sessionId] = [];
+    if (!sessions[currentSessionId]) {
+      sessions[currentSessionId] = [];
     }
 
-    // Add user message to history
-    conversations[sessionId].push({
+    sessions[currentSessionId].push({
       role: "user",
       content: message
     });
 
-    // Call OpenAI Workflow
     const response = await openai.responses.create({
-      workflow: "wf_698c1b0622a4819098fd9914c82710660397",
-      input: conversations[sessionId]
+      model: "gpt-4.1-mini",
+      input: [
+        {
+          role: "system",
+          content: `
+You are Naviga, Executive Influence Intelligence Advisor.
+You operate as a structured executive advisory intelligence system.
+Be strategic, composed, premium, and concise.
+`
+        },
+        ...sessions[currentSessionId]
+      ]
     });
 
-    const reply = response.output_text || "No response";
+    // 🔥 THIS IS THE IMPORTANT PART
+    const reply =
+      response.output?.[0]?.content?.[0]?.text ||
+      "I’m experiencing a temporary processing issue. Please try again.";
 
-    // Store assistant reply
-    conversations[sessionId].push({
+    sessions[currentSessionId].push({
       role: "assistant",
       content: reply
     });
 
     return res.status(200).json({
       reply,
-      sessionId
+      sessionId: currentSessionId
     });
 
   } catch (error) {
-    console.error("Workflow error:", error);
+    console.error(error);
     return res.status(500).json({
       error: error.message
     });
