@@ -24,8 +24,21 @@ export default async function handler(req, res) {
     const { message } = req.body;
 
     const response = await openai.responses.create({
-      workflow_id: "wf_698c1b0622a4819098fd9914c82710660397",
-      input: message
+      model: "gpt-4.1-mini",
+      input: [
+        {
+          role: "system",
+          content: `
+You are Naviga, Executive Influence Advisor.
+You help senior professionals strengthen their LinkedIn positioning.
+Be strategic, concise, and premium in tone.
+          `
+        },
+        {
+          role: "user",
+          content: message
+        }
+      ]
     });
 
     return res.status(200).json({
