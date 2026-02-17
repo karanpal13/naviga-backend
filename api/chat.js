@@ -6,7 +6,6 @@ const openai = new OpenAI({
 
 export default async function handler(req, res) {
 
-  // CORS
   res.setHeader("Access-Control-Allow-Origin", "https://digitalrecruiter.com");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -23,7 +22,7 @@ export default async function handler(req, res) {
     const { message } = req.body;
 
     const response = await openai.responses.create({
-      model: "gpt-4.1",   // REQUIRED even when using workflow
+      model: "gpt-4.1",
       workflow: {
         id: "wf_698c1b0622a4819098fd9914c82710660397"
       },
