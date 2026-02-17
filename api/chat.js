@@ -6,6 +6,7 @@ const openai = new OpenAI({
 
 export default async function handler(req, res) {
 
+  // CORS
   res.setHeader("Access-Control-Allow-Origin", "https://digitalrecruiter.com");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -19,22 +20,22 @@ export default async function handler(req, res) {
   }
 
   try {
+
     const { message } = req.body;
 
     const response = await openai.responses.create({
-      model: "gpt-4.1",
-      workflow: {
-        id: "wf_698c1b0622a4819098fd9914c82710660397"
-      },
+      workflow_id: "wf_698c1b0622a4819098fd9914c82710660397",
       input: message
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       reply: response.output_text
     });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({
+      error: error.message
+    });
   }
 }
