@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     if (!message) return res.status(400).json({ error: "Message required" });
 
     const response = await openai.responses.create({
-      workflow: "wf_YOUR_WORKFLOW_ID_HERE", // keep yours here
+      workflow: "wf_698c1b0622a4819098fd9914c82710660397016149043a87", // keep yours here
       input: [
         {
           role: "user",
