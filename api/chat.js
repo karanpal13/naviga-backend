@@ -4,9 +4,10 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const ALLOWED_ORIGIN = "https://digitalrecruiter.com"; // change if needed
+const ALLOWED_ORIGIN = "https://digitalrecruiter.com";
 
 export default async function handler(req, res) {
+
   // ===============================
   // CORS
   // ===============================
@@ -19,28 +20,42 @@ export default async function handler(req, res) {
 
   try {
     const { message } = req.body || {};
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Message required" });
-    }
+    if (!message) return res.status(400).json({ error: "Message required" });
 
-    // ===============================
-    // OPENAI WORKFLOW CALL (TYPE 1 AGENT)
-    // ===============================
     const response = await openai.responses.create({
-      workflow: "wf_698c1b0622a4819098fd9914c82710660397016149043a87", // <-- replace
+      workflow: "wf_YOUR_WORKFLOW_ID_HERE", // keep yours here
       input: [
         {
           role: "user",
-          content: message,
-        },
-      ],
+          content: message
+        }
+      ]
     });
 
+    // ===============================
+    // SAFELY EXTRACT ASSISTANT TEXT
+    // ===============================
+
+    let reply = "";
+
+    if (response.output && response.output.length > 0) {
+      for (const item of response.output) {
+        if (item.content) {
+          for (const content of item.content) {
+            if (content.text) {
+              reply += content.text;
+            }
+          }
+        }
+      }
+    }
+
     return res.status(200).json({
-      reply: response.output_text || "No response",
+      reply: reply || "No response from agent"
     });
-  } catch (err) {
-    console.error("API Error:", err);
+
+  } catch (error) {
+    console.error("API Error:", error);
     return res.status(500).json({ error: "Something went wrong" });
   }
 }
