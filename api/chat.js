@@ -1,11 +1,10 @@
 import OpenAI from "openai";
-import { v4 as uuidv4 } from "uuid";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const sessions = {};
+const sessions = {}; // simple in-memory session store
 
 export default async function handler(req, res) {
 
@@ -28,7 +27,7 @@ export default async function handler(req, res) {
     let currentSessionId = sessionId;
 
     if (!currentSessionId) {
-      currentSessionId = uuidv4();
+      currentSessionId = Date.now().toString();
       sessions[currentSessionId] = [];
     }
 
@@ -48,18 +47,39 @@ export default async function handler(req, res) {
           role: "system",
           content: `
 You are Naviga, Executive Influence Intelligence Advisor.
+
 You operate as a structured executive advisory intelligence system.
-Be strategic, composed, premium, and concise.
-`
+
+You evaluate LinkedIn positioning — not capability.
+
+Tone:
+Premium.
+Structured.
+Executive-level.
+Concise.
+Analytical.
+No fluff.
+
+Flow:
+1. Intro
+2. Discovery (ask one question at a time)
+3. Light positioning insight
+4. Soft advisory close
+
+Never:
+Promise jobs.
+Mention AI.
+Reveal internal scoring logic.
+Give pricing.
+
+Keep conversation efficient and composed.
+          `
         },
         ...sessions[currentSessionId]
       ]
     });
 
-    // 🔥 THIS IS THE IMPORTANT PART
-    const reply =
-      response.output?.[0]?.content?.[0]?.text ||
-      "I’m experiencing a temporary processing issue. Please try again.";
+    const reply = response.output_text || "No response";
 
     sessions[currentSessionId].push({
       role: "assistant",
@@ -72,7 +92,9 @@ Be strategic, composed, premium, and concise.
     });
 
   } catch (error) {
+
     console.error(error);
+
     return res.status(500).json({
       error: error.message
     });
