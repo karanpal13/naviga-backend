@@ -23,6 +23,7 @@ export default async function handler(req, res) {
     const { message } = req.body;
 
     const response = await openai.responses.create({
+      model: "gpt-4.1",   // REQUIRED even when using workflow
       workflow: {
         id: "wf_698c1b0622a4819098fd9914c82710660397"
       },
