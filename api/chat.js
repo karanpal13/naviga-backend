@@ -23,11 +23,10 @@ export default async function handler(req, res) {
 
     const { message } = req.body;
 
-    // 🔥 CALL YOUR WORKFLOW
     const response = await openai.responses.create({
+      model: "gpt-4.1",
       workflow: {
-        id: "wf_698c1b0622a4819098fd9914c82710660397", // ← YOUR WORKFLOW ID
-        version: "18" // ← Your version (optional in production)
+        id: "wf_698c1b0622a4819098fd9914c82710660397"
       },
       input: message
     });
@@ -38,6 +37,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error("OPENAI ERROR:", error);
-    return res.status(500).json({ error: error.message || "Something went wrong" });
+    return res.status(500).json({ error: error.message });
   }
 }
